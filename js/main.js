@@ -126,3 +126,23 @@ window.addEventListener("load", function (event) {
     currency: "MXN",
   }).format(costoTotal);
 });
+
+btnClear.addEventListener("click", function (event) {
+  errorClean();
+  txtname.style.border = "";
+  txtnumber.style.border = "";
+
+  localStorage.removeItem("resumen");
+  localStorage.removeItem("datos");
+
+  contadorProductos.innerText = 0;
+  productosTotal.innerText = 0;
+  precioTotal.innerText = new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+  }).format(0);
+
+  while (cuerpoTabla.firstChild) {
+    cuerpoTabla.removeChild(cuerpoTabla.firstChild);
+  }
+});
