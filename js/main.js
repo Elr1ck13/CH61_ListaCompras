@@ -8,16 +8,19 @@ const contadorProductos = document.getElementById("contadorProductos");
 const productosTotal = document.getElementById("productosTotal");
 const precioTotal = document.getElementById("precioTotal");
 const tablaListaCompras = document.getElementById("tablaListaCompras");
-const cuerpoTabla = tablaListaCompras.getElementsByTagName("tbody").item(0)
+const cuerpoTabla = tablaListaCompras.getElementsByTagName("tbody").item(0);
 let totalEnProductos = 0;
 let cont = 0;
 let costoTotal = 0;
+let row = [];
 
 function validarCantidad(cantidad) {
-  return (cantidad.length == 0 || isNaN(cantidad) || Number(cantidad) < 0) ?  false:true;
+  return cantidad.length == 0 || isNaN(cantidad) || Number(cantidad) < 0
+    ? false
+    : true;
 }
-function getPrecio(){
-    return Math.round(Math.random() * 1000)/100;
+function getPrecio() {
+  return Math.round(Math.random() * 1000) / 100;
 }
 function errorClean() {
   alertValidacionesTexto.innerHTML = "";
@@ -27,9 +30,19 @@ function errorClean() {
 }
 
 function errorChange(msg) {
-    
- alertValidacionesTexto.innerHTML += "<br><strong>" + msg + "<strong>";
-alertValidaciones.style.display = "block";
+  alertValidacionesTexto.innerHTML += "<br><strong>" + msg + "<strong>";
+  alertValidaciones.style.display = "block";
+}
+
+function createRows(columns) {
+  let row = `<tr>`;
+  for (const column of columns) {
+    row += `<td>${column}</td>`;
+  }
+  row += `<tr>`;
+  console.log(row);
+  
+  return row;
 }
 btnAgregar.addEventListener("click", function (event) {
   event.preventDefault();
@@ -37,39 +50,67 @@ btnAgregar.addEventListener("click", function (event) {
   let isValid = true;
 
   if (txtname.value.length < 3) {
-    errorChange( "El nombre del producto no es correcto");
+    errorChange("El nombre del producto no es correcto");
     txtname.style.border = "solid thin red";
     isValid = false;
- }
+  }
   if (!validarCantidad(txtnumber.value)) {
-    errorChange( "La cantidad no es correcta");
+    errorChange("La cantidad no es correcta");
     txtnumber.style.border = "solid thin red";
     isValid = false;
-}
-if (isValid) {
-
+  }
+  if (isValid) {
     let precio = getPrecio();
     cont++;
-    let row = `<tr>
+    /* let row = `<tr>
         <td>${cont}</td>
         <td>${txtname.value}</td>
         <td>${txtnumber.value}</td>
         <td>${precio}</td>
       </tr>
-    `;
-    
+    `; */
+
     console.log(precio);
     totalEnProductos += Number(txtnumber.value);
     costoTotal += precio * Number(txtnumber.value);
     
-    cuerpoTabla.insertAdjacentHTML("beforeend",row);
+    //row = [cont, txtname.value, txtnumber.value, precio];
     
-    contadorProductos.innerText = cont
+    cuerpoTabla.insertAdjacentHTML("beforeend", createRows([cont, txtname.value, txtnumber.value, precio]));
+
+    contadorProductos.innerText = cont;
     productosTotal.innerText = totalEnProductos;
-    precioTotal.innerText = new Intl.NumberFormat("es-MX", 
-      { style: "currency", currency: "MXN" }).format(costoTotal);
-      txtname.value="";
-      txtname.value="";
-      txtname.focus();
-    }
+    precioTotal.innerText = new Intl.NumberFormat("es-MX", {
+      style: "currency",
+      currency: "MXN",
+    }).format(costoTotal);
+    txtname.value = "";
+    txtnumber.value = "";
+    txtname.focus();
+  }
+
+  let resumen = {
+    cont: cont,
+    totalEnProductos: totalEnProductos,
+    costoTotal: costoTotal,
+  };
+
+  localStorage.setItem("resumen", JSON.stringify(resumen));
+});
+
+window.addEventListener("load", function (event) {
+  event.preventDefault();
+
+  if (this.localStorage.getItem("resumen") != null) {
+    let resumen = JSON.parse(this.localStorage.getItem("resumen"));
+    cont = resumen.cont;
+    totalEnProductos = resumen.totalEnProductos;
+    costoTotal = resumen.costoTotal;
+  }
+  contadorProductos.innerText = cont;
+  productosTotal.innerText = totalEnProductos;
+  precioTotal.innerText = new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+  }).format(costoTotal);
 });
