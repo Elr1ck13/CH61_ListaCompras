@@ -45,6 +45,16 @@ function createRows(element) {
   row += `<tr>`;
   return row;
 }
+
+function resumenData(data) {
+  contadorProductos.innerText = data[0];
+  productosTotal.innerText = data[1];
+  precioTotal.innerText = new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+  }).format(data[2]);
+}
+
 btnAgregar.addEventListener("click", function (event) {
   event.preventDefault();
   errorClean();
@@ -63,18 +73,10 @@ btnAgregar.addEventListener("click", function (event) {
   if (isValid) {
     let precio = getPrecio();
     cont++;
-    /* let row = `<tr>
-        <td>${cont}</td>
-        <td>${txtname.value}</td>
-        <td>${txtnumber.value}</td>
-        <td>${precio}</td>
-      </tr>
-    `; */
-
     let elemento = {
-      cont: cont,
-      nombre: txtname.value,
-      cantidad: txtnumber.value,
+      "cont": cont,
+      "nombre": txtname.value,
+      "cantidad": txtnumber.value,
       " precio": precio,
     };
 
@@ -84,12 +86,8 @@ btnAgregar.addEventListener("click", function (event) {
     costoTotal += precio * Number(txtnumber.value);
     cuerpoTabla.insertAdjacentHTML("beforeend", createRows(elemento));
 
-    contadorProductos.innerText = cont;
-    productosTotal.innerText = totalEnProductos;
-    precioTotal.innerText = new Intl.NumberFormat("es-MX", {
-      style: "currency",
-      currency: "MXN",
-    }).format(costoTotal);
+    resumenData([cont, totalEnProductos, costoTotal]);
+
     txtname.value = "";
     txtnumber.value = "";
     txtname.focus();
@@ -119,28 +117,16 @@ window.addEventListener("load", function (event) {
     totalEnProductos = resumen.totalEnProductos;
     costoTotal = resumen.costoTotal;
   }
-  contadorProductos.innerText = cont;
-  productosTotal.innerText = totalEnProductos;
-  precioTotal.innerText = new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-  }).format(costoTotal);
+  resumenData([cont, totalEnProductos, costoTotal]);
 });
 
 btnClear.addEventListener("click", function (event) {
   errorClean();
   txtname.style.border = "";
   txtnumber.style.border = "";
-
   localStorage.removeItem("resumen");
   localStorage.removeItem("datos");
-
-  contadorProductos.innerText = 0;
-  productosTotal.innerText = 0;
-  precioTotal.innerText = new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-  }).format(0);
+  resumenData([0, 0, 0]);
 
   while (cuerpoTabla.firstChild) {
     cuerpoTabla.removeChild(cuerpoTabla.firstChild);
