@@ -2,7 +2,9 @@ const txtname = document.getElementById("Name");
 const txtnumber = document.getElementById("Number");
 const btnAgregar = document.getElementById("btnAgregar");
 const btnClear = document.getElementById("btnClear");
-const alertValidacionesTexto = document.getElementById("alertValidacionesTexto");
+const alertValidacionesTexto = document.getElementById(
+  "alertValidacionesTexto"
+);
 const alertValidaciones = document.getElementById("alertValidaciones");
 const contadorProductos = document.getElementById("contadorProductos");
 const productosTotal = document.getElementById("productosTotal");
@@ -13,6 +15,7 @@ let totalEnProductos = 0;
 let cont = 0;
 let costoTotal = 0;
 let row = [];
+let datos = [];
 
 function validarCantidad(cantidad) {
   return cantidad.length == 0 || isNaN(cantidad) || Number(cantidad) < 0
@@ -34,14 +37,12 @@ function errorChange(msg) {
   alertValidaciones.style.display = "block";
 }
 
-function createRows(columns) {
+function createRows(element) {
   let row = `<tr>`;
-  for (const column of columns) {
-    row += `<td>${column}</td>`;
+  for (const [key, value] of Object.entries(element)) {
+    row += `<td>${value}</td>`;
   }
   row += `<tr>`;
-  console.log(row);
-  
   return row;
 }
 btnAgregar.addEventListener("click", function (event) {
@@ -70,13 +71,18 @@ btnAgregar.addEventListener("click", function (event) {
       </tr>
     `; */
 
-    console.log(precio);
+    let elemento = {
+      cont: cont,
+      nombre: txtname.value,
+      cantidad: txtnumber.value,
+      " precio": precio,
+    };
+
+    datos.push(elemento);
+    localStorage.setItem("datos", JSON.stringify(datos));
     totalEnProductos += Number(txtnumber.value);
     costoTotal += precio * Number(txtnumber.value);
-    
-    //row = [cont, txtname.value, txtnumber.value, precio];
-    
-    cuerpoTabla.insertAdjacentHTML("beforeend", createRows([cont, txtname.value, txtnumber.value, precio]));
+    cuerpoTabla.insertAdjacentHTML("beforeend", createRows(elemento));
 
     contadorProductos.innerText = cont;
     productosTotal.innerText = totalEnProductos;
@@ -100,6 +106,12 @@ btnAgregar.addEventListener("click", function (event) {
 
 window.addEventListener("load", function (event) {
   event.preventDefault();
+  if (this.localStorage.getItem("datos") != null) {
+    datos = JSON.parse(this.localStorage.getItem("datos"));
+    datos.forEach((elemento) => {
+      cuerpoTabla.insertAdjacentHTML("beforeend", createRows(elemento));
+    });
+  }
 
   if (this.localStorage.getItem("resumen") != null) {
     let resumen = JSON.parse(this.localStorage.getItem("resumen"));
